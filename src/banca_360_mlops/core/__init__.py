@@ -1,0 +1,1 @@
+"""Nucleo funcional migrado desde los scripts originales del caso."""

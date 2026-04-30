@@ -1,0 +1,198 @@
+seed: 42
+
+tracking:
+  enabled: true
+  experiment_name: banca_360_metodologia_v4_mlops
+  run_name: banca_360_v4_master_run
+  tracking_dir: mlruns
+
+case:
+  dataset_rows: 1200
+  target: abandono
+  ols_target: rentabilidad_mensual_estimada
+  model_routing:
+    business_case: banking_classification
+    problem_type: classification
+    active_benchmark_catalog: classification_general
+    benchmark_catalogs:
+      classification_general:
+        - logistic
+        - random_forest
+        - gradient_boosting
+        - lightgbm
+        - mlp
+      value_prediction:
+        - linear
+        - lasso
+        - xgboost
+        - knn
+      rentals_forecasting:
+        - arima
+        - prophet
+        - lstm
+  benchmark_models:
+    - logistic
+    - random_forest
+    - gradient_boosting
+    - lightgbm
+    - mlp
+  forecasting:
+    date_column: fecha_corte
+    horizon: 30
+    lag_count: 6
+    seasonality_period: 12
+  feature_cols:
+    - edad
+    - antiguedad_meses
+    - ingreso_mensual
+    - ingreso_mensual_fracdiff_0_4
+    - saldo_promedio_3m
+    - saldo_promedio_3m_fracdiff_0_4
+    - saldo_variacion_pct_3m
+    - gasto_mensual
+    - gasto_mensual_fracdiff_0_4
+    - productos_activos
+    - ratio_uso_credito
+    - transacciones_app_30d
+    - interacciones_sucursal_90d
+    - compras_12m
+    - promociones_12m
+    - indice_engagement
+    - satisfaccion
+    - reclamaciones
+    - usa_app
+    - nomina_domiciliada
+    - hipoteca_activa
+    - producto_premium
+    - atraso_30d
+    - macro_segmento
+    - canal_servicio
+  outlier_cols:
+    - ingreso_mensual
+    - saldo_promedio_3m
+    - rentabilidad_mensual_estimada
+    - valor_cliente_12m
+  vif_cols:
+    - edad
+    - antiguedad_meses
+    - ingreso_mensual
+    - saldo_promedio_3m
+    - gasto_mensual
+    - ingreso_mensual_fracdiff_0_4
+    - indice_engagement
+  inference_features:
+    - edad
+    - antiguedad_meses
+    - saldo_promedio_3m
+    - productos_activos
+    - ratio_uso_credito
+    - indice_engagement
+    - reclamaciones
+    - atraso_30d
+    - usa_app
+    - producto_premium
+    - macro_segmento
+    - canal_servicio
+  value_model_features:
+    - region
+    - canal_captacion
+    - canal_servicio
+    - segmento
+    - macro_segmento
+    - edad
+    - antiguedad_meses
+    - ingreso_mensual
+    - ingreso_mensual_fracdiff_0_4
+    - saldo_promedio_3m
+    - saldo_promedio_3m_fracdiff_0_4
+    - saldo_variacion_pct_3m
+    - gasto_mensual
+    - gasto_mensual_fracdiff_0_4
+    - ticket_medio
+    - compras_12m
+    - productos_activos
+    - ratio_uso_credito
+    - transacciones_app_30d
+    - interacciones_sucursal_90d
+    - visitas_web_30d
+    - reclamaciones
+    - satisfaccion
+    - nomina_domiciliada
+    - hipoteca_activa
+    - producto_premium
+    - usa_app
+    - atraso_30d
+    - clv_t_dias
+    - clv_frecuencia
+    - clv_t_ultima_compra_dias
+    - clv_dias_desde_ultima_transaccion
+    - clv_monetario_promedio
+  segment_features:
+    - probabilidad_abandono
+    - valor_esperado_contacto
+    - clv_probabilistico_6m
+    - prioridad_integrada
+  test_size: 0.25
+  clv_horizons:
+    - 6
+    - 12
+  financial_error_asymmetry: 1.8
+  contact_cost: 22.0
+  retention_success_rate: 0.28
+  max_contact_share: 0.30
+  parsimony:
+    logistic_feature_steps:
+      - 4
+      - 8
+      - 12
+      - 18
+    roc_auc_tolerance: 0.015
+  uncertainty:
+    bootstrap_iterations: 40
+    prediction_interval_alpha: 0.10
+  temporal_validation:
+    n_splits: 4
+    purge_gap_days: 7
+    embargo_gap_days: 14
+  fairness:
+    sensitive_columns:
+      - edad
+      - genero
+      - region
+    age_bins:
+      - 30
+      - 45
+      - 60
+  bandit:
+    epsilon: 0.10
+  deep_learning:
+    enabled: true
+    require_dropout: true
+    require_batch_norm: true
+    require_early_stopping: true
+    require_bayesian_optimization: true
+    require_mc_dropout: true
+  pipeline_health:
+    active_profile: demo
+    profiles:
+      demo:
+        freshness_threshold_hours: 168.0
+        count_tolerance_pct: 50.0
+        critical_freshness_multiplier: 2.0
+        critical_count_tolerance_pct: 75.0
+        validation_error_alert_pct: 10.0
+        validation_error_critical_pct: 15.0
+      qa:
+        freshness_threshold_hours: 72.0
+        count_tolerance_pct: 35.0
+        critical_freshness_multiplier: 2.0
+        critical_count_tolerance_pct: 60.0
+        validation_error_alert_pct: 8.0
+        validation_error_critical_pct: 12.0
+      production:
+        freshness_threshold_hours: 24.0
+        count_tolerance_pct: 20.0
+        critical_freshness_multiplier: 2.0
+        critical_count_tolerance_pct: 40.0
+        validation_error_alert_pct: 5.0
+        validation_error_critical_pct: 10.0

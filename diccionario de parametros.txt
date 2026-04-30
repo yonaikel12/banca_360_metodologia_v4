@@ -1,0 +1,82 @@
+2. Parámetros en conf/settings.yaml a Ajustar
+Estos son los principales parámetros que dependen del dataset y el caso de negocio. Debes actualizarlos para que coincidan con las columnas y características de tu nuevo dataset:
+
+# descripcion parametros
+1. case.dataset_rows: Cambia al número de filas de tu nuevo dataset (actualmente 1200).
+2. case.target: La variable objetivo principal (actualmente "abandono"). Cámbiala si tu dataset tiene una variable de churn diferente.
+3. case.ols_target: Variable objetivo para el modelo OLS de valor (actualmente "rentabilidad_mensual_estimada"). Ajusta si aplica a tu dataset.
+4. case.feature_cols: Lista de columnas de features para el modelo de churn. Debes reemplazar con las columnas relevantes de tu dataset (ej. edad, ingresos, etc.).
+5. case.outlier_cols: Columnas para detectar outliers. Actualiza con las numéricas de tu dataset que puedan tener outliers.
+6. case.vif_cols: Columnas para análisis de multicolinealidad (VIF). Incluye las numéricas clave de tu dataset.
+7. case.inference_features: Features para inferencia/predicción. Subconjunto de features esenciales.
+8. case.value_model_features: Features para el modelo de valor/CLV. Lista completa de variables económicas y demográficas.
+9. case.segment_features: Features para segmentación (ej. probabilidad de abandono, CLV). Ajusta si cambian las métricas.
+10. case.test_size: Proporción de datos para test (actualmente 0.25). Ajusta si necesitas más/menos datos de entrenamiento.
+11. case.clv_horizons: Horizontes para calcular CLV (actualmente [6, 12] meses). Cambia si tu horizonte de negocio es diferente.
+12. case.financial_error_asymmetry: Asimetría en errores financieros (actualmente 1.8). Ajusta según el costo de falsos positivos/negativos en tu caso.
+13. case.contact_cost: Costo de contacto por cliente (actualmente 22.0). Actualiza con tus costos reales.
+14. case.retention_success_rate: Tasa de éxito de retención (actualmente 0.28). Basado en datos históricos de tu negocio.
+15. case.max_contact_share: Máximo porcentaje de clientes a contactar (actualmente 0.30). Límite operativo.
+16. fairness.sensitive_columns: Columnas sensibles para auditoría de equidad (actualmente ["edad", "genero", "region"]). Reemplaza con las de tu dataset (ej. si no hay "genero", quítalo).
+17. fairness.age_bins: Bins para análisis de edad (actualmente [30, 45, 60]). Ajusta según la distribución de edad en tu dataset.
+18. temporal_validation.n_splits: Número de splits para validación temporal (actualmente 4). Ajusta según la longitud de tu serie temporal.
+19. temporal_validation.purge_gap_days y embargo_gap_days: Gaps para evitar data leakage (actualmente 7 y 14 días). Cambia según la frecuencia de tus datos.
+20. seed: Semilla para reproducibilidad (actualmente 42). Cambia si quieres variabilidad.
+3. Otros Ajustes Potenciales
+Si tu dataset tiene columnas categóricas diferentes, asegúrate de que el código maneje encoding (el proyecto usa one-hot encoding automáticamente para categóricas).
+Para deep learning o modelos avanzados, revisa deep_learning.enabled y subparámetros si no aplican.
+Si el perfil operativo cambia (demo/qa/production), ajusta pipeline_health.profiles con thresholds apropiados para tu entorno.
+Ejecuta el pipeline con python -m banca360v3 run --project-root . después de cambios, y valida con el notebook maestro para asegurar que todo funcione.
+Si tu nuevo dataset difiere mucho en estructura (ej. columnas faltantes o tipos de datos), podrías necesitar modificar funciones en src/banca_360_mlops/core/ para adaptar la lógica de negocio. ¿Puedes describir más detalles sobre tu nuevo dataset (columnas, tamaño, dominio) para dar consejos más específicos?
+
+# explicaicon parametros:
+
+La configuración de los parámetros en el archivo settings.yaml constituye el "contrato metodológico" que garantiza que el pipeline no sea una "caja negra", sino un sistema de gobernanza analítica industrial
+
+A continuación, se explica cada parámetro con su rigor estadístico y lógica de negocio:
+1. Parámetros de Definición de Datos
+dataset_rows: Define el volumen de la muestra. Rigor: Permite validar si el tamaño de la muestra es suficiente para obtener potencia estadística y evitar que los resultados se deban al azar
+
+target: La variable de resultado (éxito/fracaso)
+Negocio: Debe representar el evento que genera pérdida económica (ej. cierre de cuenta)
+
+ols_target: Variable continua para el modelo de valor. Rigor: Se usa para estimar el valor intrínseco mediante regresión robusta, permitiendo identificar drivers monetarios
+
+2. Listas de Columnas y Gobernanza de Features
+feature_cols: Predictores para el modelo de clasificación. Rigor: Se deben elegir basándose en la intuición de negocio (valor, vinculación, fricción) para evitar la "mecanización ciega"
+
+outlier_cols: Variables para detección de valores atípicos. Rigor: Los outliers pueden distorsionar la media; se deben identificar para decidir si son errores o valores legítimos que requieren estimadores robustos como la mediana
+
+vif_cols: Variables para análisis de multicolinealidad. Rigor: Un Factor de Inflación de la Varianza (VIF) alto indica redundancia, lo que degrada la estabilidad de los coeficientes y dificulta la interpretación causal
+
+inference_features: Subconjunto para explicar el fenómeno. Rigor: Basado en el principio de parsimonia (Navaja de Occam), buscando el modelo más simple que explique el resultado
+
+value_model_features: Drivers para el CLV. Negocio: Incluye variables de comportamiento histórico necesarias para proyectar el flujo de caja futuro del cliente
+
+segment_features: Variables para Clustering (K-Means). Rigor: Deben estar escaladas (puntuación Z) para que las unidades grandes no dominen injustamente el cálculo de distancia euclidiana
+
+3. Parámetros de Validación y Modelado
+test_size: Proporción de datos reservados. Rigor: Permite evaluar la capacidad de generalización del modelo en datos que no "vio" durante el entrenamiento, controlando el sobreajuste
+
+seed: Semilla aleatoria. Rigor: Garantiza la reproducibilidad científica de los experimentos; sin ella, los resultados variarían en cada ejecución debido a la aleatoriedad del split
+
+4. Lógica de Negocio y Activación Económica
+clv_horizons: Ventanas de tiempo (meses). Negocio: Define el periodo en el que la organización espera recuperar la inversión de retención
+
+financial_error_asymmetry: Penaliza de forma distinta los fallos. Rigor: En banca, suele ser más costoso no detectar a alguien que se va (Falso Negativo) que llamar a alguien que no pensaba irse (Falso Positivo)
+
+contact_cost: Costo operativo de la acción CRM. Negocio: Parámetro vital para el cálculo del ROI estimado; sin él, el modelo solo da probabilidades, no rentabilidad
+
+retention_success_rate: Probabilidad de que el cliente se quede tras la llamada. Negocio: Se basa en datos históricos para evitar proyecciones de ahorro demasiado optimistas
+
+max_contact_share: Límite de capacidad operativa. Negocio: Restricción de presupuesto o personal; asegura que el modelo solo priorice a los clientes con mayor valor esperado neto
+
+5. Ética y Equidad (Fairness)
+sensitive_columns: Atributos sensibles (ej. género). Rigor: Permite realizar una auditoría de equidad para asegurar que el modelo no discrimine injustamente a subpoblaciones protegidas
+
+age_bins: Categorización de la edad. Rigor: Convierte datos numéricos en categóricos para evaluar si el rendimiento del modelo es consistente a través de diferentes etapas de vida
+
+6. Validación Temporal y Blindaje
+n_splits: Número de iteraciones temporales. Rigor: En series de tiempo, la validación cruzada estándar falla; se requiere un enfoque secuencial para respetar la cronología
+
+purge_gap_days y embargo_gap_days: Gaps de seguridad. Rigor: Evitan el data leakage (filtración de información). La purga elimina datos solapados entre train y test, y el embargo elimina datos inmediatamente posteriores para neutralizar la correlación serial

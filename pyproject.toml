@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "banca-360-mlops-v4"
+version = "0.4.0"
+description = "Evolucion modular MLOps del caso Banca 360 con ruteo dinamico de modelos, forecasting y gobierno ampliado"
+readme = "README.md"
+requires-python = ">=3.11,<3.12"
+dependencies = []
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project.scripts]
+banca360v4 = "banca_360_mlops.cli:main"

@@ -1,0 +1,44 @@
+Metadata-Version: 2.4
+Name: banca-360-mlops
+Version: 0.1.0
+Summary: Migracion modular MLOps del caso Banca 360
+Requires-Python: <3.12,>=3.11
+Description-Content-Type: text/markdown
+
+# Banca 360 Metodologia V2
+
+Este proyecto replica la base modular de Banca 360 en un entorno aislado y la evoluciona con una capa metodologica adicional inspirada en literatura de calidad de datos, EDA, muestreo y estandares tabulares.
+
+## Estructura
+
+- `data/raw`: dataset base y tablas de marco metodologico.
+- `data/interim`: benchmark, conclusiones BI, chequeos de robustez y auditorias de contrato tabular/representatividad.
+- `data/processed`: scorecard final, shortlist, segmentacion y resumen de ejecucion.
+- `src/banca_360_mlops/core`: nucleo funcional migrado desde los scripts originales.
+- `src/banca_360_mlops/services`: capa OO del caso de negocio.
+- `src/banca_360_mlops/pipeline`: nodos y orquestacion asincroma.
+- `notebooks`: notebook maestro narrativo.
+
+La v2 agrega artefactos nuevos de gobierno del dato:
+
+- contrato tabular y auditoria de cabeceras, fechas, ids y tokens nulos;
+- diccionario de datos procesable con roles semanticos y esquema tabular;
+- auditoria de representatividad y plan de muestreo recomendado;
+- tabla de alineacion metodologica entre literatura y componentes del pipeline.
+
+## Ejecucion
+
+1. Crear o activar el entorno virtual del proyecto.
+2. Instalar dependencias con `pip install -r requirements.txt`.
+3. Instalar el paquete en modo editable con `pip install -e .`.
+4. Ejecutar el caso completo con `python -m banca_360_mlops.cli run`.
+
+no es necesario activar el venv para correr el proyecto, usa directamente el python del entorno
+
+secuencia de comandos para ejecutar el proyecto:
+Set-Location "c:\Users\yonai\Documents\Master Analytics and Visual in Big Data\Master\mlops_banca_360_modular"
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m pip install -e .
+.\.venv\Scripts\python.exe -m banca_360_mlops.cli run --project-root .s
+
+El notebook maestro reutiliza exactamente la misma configuracion externa y las mismas funciones del paquete.
