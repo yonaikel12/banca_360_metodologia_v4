@@ -1,2 +1,0 @@
-[console_scripts]
-banca360 = banca_360_mlops.cli:main
